@@ -123,7 +123,7 @@ function App() {
         /^data:image\/png;base64,/,
         ""
       );
-      folder.file(`qrcode_${qrCode.number}.png`, base64Data, { base64: true });
+      folder.file(`${qrCode.number}.png`, base64Data, { base64: true });
     });
 
     const content = await zip.generateAsync({ type: "blob" });
