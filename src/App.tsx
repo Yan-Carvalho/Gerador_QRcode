@@ -31,17 +31,6 @@ function App() {
     return CryptoJS.SHA256(combinedString).toString();
   };
 
-  // const generateQRCode = async (url: string): Promise<string> => {
-  //   return await QRCode.toDataURL(url, {
-  //     width: 400,
-  //     margin: 2,
-  //     color: {
-  //       dark: "#000000",
-  //       light: "#ffffff",
-  //     },
-  //   });
-  // };
-
   const generateQRCode = async (
     url: string,
     number: string
@@ -74,7 +63,7 @@ function App() {
 
     // Add text
     ctx.fillStyle = "#000000";
-    ctx.font = "32px Arial";
+    ctx.font = "20px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillText(number, finalCanvas.width / 2, qrCanvas.height + 10);
