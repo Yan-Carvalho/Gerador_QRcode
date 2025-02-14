@@ -31,13 +31,8 @@ function App() {
     return CryptoJS.SHA256(combinedString).toString();
   };
 
-  const generateQRCode = async (
-    url: string,
-    number: string
-  ): Promise<string> => {
-    // First generate the QR code
-    const qrCanvas = document.createElement("canvas");
-    await QRCode.toCanvas(qrCanvas, url, {
+  const generateQRCode = async (url: string): Promise<string> => {
+    return await QRCode.toDataURL(url, {
       width: 400,
       margin: 2,
       color: {
@@ -45,31 +40,47 @@ function App() {
         light: "#ffffff",
       },
     });
-
-    // Create a new canvas with extra space for the number
-    const finalCanvas = document.createElement("canvas");
-    const ctx = finalCanvas.getContext("2d")!;
-
-    // Set dimensions to accommodate QR code and text
-    finalCanvas.width = qrCanvas.width;
-    finalCanvas.height = qrCanvas.height + 40; // Extra space for text
-
-    // Fill background
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
-
-    // Draw QR code
-    ctx.drawImage(qrCanvas, 0, 0);
-
-    // Add text
-    ctx.fillStyle = "#000000";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.fillText(number, finalCanvas.width / 2, qrCanvas.height + 10);
-
-    return finalCanvas.toDataURL("image/png");
   };
+
+  // const generateQRCode = async (
+  //   url: string,
+  //   number: string
+  // ): Promise<string> => {
+  //   // First generate the QR code
+  //   const qrCanvas = document.createElement("canvas");
+  //   await QRCode.toCanvas(qrCanvas, url, {
+  //     width: 400,
+  //     margin: 2,
+  //     color: {
+  //       dark: "#000000",
+  //       light: "#ffffff",
+  //     },
+  //   });
+
+  //   // Create a new canvas with extra space for the number
+  //   const finalCanvas = document.createElement("canvas");
+  //   const ctx = finalCanvas.getContext("2d")!;
+
+  //   // Set dimensions to accommodate QR code and text
+  //   finalCanvas.width = qrCanvas.width;
+  //   finalCanvas.height = qrCanvas.height + 40; // Extra space for text
+
+  //   // Fill background
+  //   ctx.fillStyle = "#ffffff";
+  //   ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+
+  //   // Draw QR code
+  //   ctx.drawImage(qrCanvas, 0, 0);
+
+  //   // Add text
+  //   ctx.fillStyle = "#000000";
+  //   ctx.font = "32px Arial";
+  //   ctx.textAlign = "center";
+  //   ctx.textBaseline = "top";
+  //   ctx.fillText(number, finalCanvas.width / 2, qrCanvas.height + 10);
+
+  //   return finalCanvas.toDataURL("image/png");
+  // };
 
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -116,7 +127,7 @@ function App() {
       const number = fileContent[i].replace(/\s/g, "");
       const hash = generateHash(number, password);
       const url = `https://check.vant.plus/${number}-${hash}`;
-      const qrDataUrl = await generateQRCode(url, number);
+      const qrDataUrl = await generateQRCode(url);
 
       batchQRCodes.push({
         url,
