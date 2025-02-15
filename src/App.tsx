@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { FileText, Upload, Download, Lock, Eye, EyeOff } from "lucide-react";
+import { FileText, Upload, Download } from "lucide-react";
 import CryptoJS from "crypto-js";
 import QRCode from "qrcode";
 import JSZip from "jszip";
@@ -13,8 +13,6 @@ interface QRCodeData {
 function App() {
   const [error, setError] = useState<string>("");
   const [debugInfo, setDebugInfo] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileContent, setFileContent] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -26,8 +24,10 @@ function App() {
   const BATCH_SIZE = 2000;
   const BATCH_DELAY = 10000; // 10 seconds in milliseconds
 
-  const generateHash = (number: string, password: string) => {
-    const combinedString = number + password;
+  const generateHash = (number: string) => {
+    // const combinedString = number + password;
+    const combinedString = number + `VAPWHV`;
+
     return CryptoJS.SHA256(combinedString).toString();
   };
 
@@ -78,14 +78,13 @@ function App() {
 
   const processBatch = async (
     startIndex: number,
-    endIndex: number,
-    password: string
+    endIndex: number
   ): Promise<QRCodeData[]> => {
     const batchQRCodes: QRCodeData[] = [];
 
     for (let i = startIndex; i < endIndex; i++) {
       const number = fileContent[i].replace(/\s/g, "");
-      const hash = generateHash(number, password);
+      const hash = generateHash(number);
       const url = `https://check.vant.plus/${number}-${hash}`;
       const qrDataUrl = await generateQRCode(url);
 
@@ -137,11 +136,6 @@ function App() {
   };
 
   const generateAndDownloadQRCodes = async () => {
-    if (!password) {
-      setError("Por favor, digite uma senha para gerar os QR codes");
-      return;
-    }
-
     if (fileContent.length === 0) {
       setError("Por favor, carregue um arquivo primeiro");
       return;
@@ -167,7 +161,7 @@ function App() {
           }/${totalBatches}: códigos ${displayStart} até ${displayEnd}`
         );
 
-        const batchQRCodes = await processBatch(startIndex, endIndex, password);
+        const batchQRCodes = await processBatch(startIndex, endIndex);
 
         setDebugInfo(
           `Baixando lote ${
@@ -234,38 +228,6 @@ function App() {
                 onChange={handleFileUpload}
                 className="hidden"
               />
-            </div>
-
-            {/* Password Input */}
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Senha para geração do hash
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 pl-10 pr-10 py-2"
-                  placeholder="Digite a senha"
-                />
-                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
             </div>
 
             {/* Generate Button */}
